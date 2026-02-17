@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% block content %}
+  <h1>Отчет: суммарный расход по объектам</h1>
+
+  {% for (object_id, object_name), items in grouped.items() %}
+    <h2 style="margin-top: 16px;">{{ object_name }}</h2>
+    <div class="card">
+      <table class="table">
+        <thead><tr><th>Материал</th><th>Кол-во</th><th>Ед.</th></tr></thead>
+        <tbody>
+          {% for it in items %}
+            <tr>
+              <td>{{ it.material_name }}</td>
+              <td>{{ '%.3f'|format(it.total_qty) }}</td>
+              <td>{{ it.unit }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% endfor %}
+
+  {% if not grouped %}
+    <div class="card"><p class="muted">Нет данных по списаниям.</p></div>
+  {% endif %}
+{% endblock %}

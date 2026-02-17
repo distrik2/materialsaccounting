@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ title or "ИС учета материалов" }}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+  <header class="topbar">
+    <div class="container topbar__row">
+      <div class="brand">ИС учета материалов</div>
+      <nav class="nav">
+        <a href="{{ url_for('reports.dashboard') }}">Главная</a>
+        <a href="{{ url_for('materials.list_materials') }}">Материалы</a>
+        <a href="{{ url_for('objects.list_objects') }}">Объекты</a>
+        <a href="{{ url_for('inventory.list_supplies') }}">Поставки</a>
+        <a href="{{ url_for('inventory.list_writeoffs') }}">Списания</a>
+        <a href="{{ url_for('reports.stock_report') }}">Отчеты</a>
+        {% if current_user.is_authenticated and current_user.role == 'admin' %}
+          <a href="{{ url_for('users.list_users') }}">Пользователи</a>
+        {% endif %}
+        {% if current_user.is_authenticated %}
+          <a class="nav__right" href="{{ url_for('auth.logout') }}">Выход ({{ current_user.username }})</a>
+        {% endif %}
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="flash">
+          {% for category, message in messages %}
+            <div class="flash__item flash__item--{{ category }}">{{ message }}</div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    {% block content %}{% endblock %}
+  </main>
+</body>
+</html>

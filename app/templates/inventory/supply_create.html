@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block content %}
+  <h1>Добавить поставку</h1>
+  <div class="card">
+    <form method="post">
+      <label class="field">
+        <span>Материал</span>
+        <select name="material_id" required>
+          <option value="">-- выберите --</option>
+          {% for m in materials %}
+            <option value="{{ m.id }}">{{ m.name }} (остаток: {{ '%.3f'|format(m.current_stock) }} {{ m.unit }})</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label class="field">
+        <span>Количество</span>
+        <input name="quantity" placeholder="например 10 или 1.5" required>
+      </label>
+      <label class="field">
+        <span>Дата поставки</span>
+        <input type="date" name="supply_date" required>
+      </label>
+      <label class="field">
+        <span>Примечание</span>
+        <input name="note">
+      </label>
+      <button class="btn" type="submit">Сохранить</button>
+      <a class="btn btn--ghost" href="{{ url_for('inventory.list_supplies') }}">Отмена</a>
+    </form>
+  </div>
+{% endblock %}

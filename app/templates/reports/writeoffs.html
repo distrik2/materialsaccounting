@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block content %}
+  <h1>Отчет: списания</h1>
+  <div class="card">
+    <table class="table">
+      <thead><tr><th>Дата</th><th>Объект</th><th>Материал</th><th>Кол-во</th><th>Ед.</th><th>Примечание</th></tr></thead>
+      <tbody>
+        {% for w in writeoffs %}
+          <tr>
+            <td>{{ w.writeoff_date.isoformat() }}</td>
+            <td>{{ w.object.name }}</td>
+            <td>{{ w.material.name }}</td>
+            <td>{{ '%.3f'|format(w.quantity) }}</td>
+            <td>{{ w.material.unit }}</td>
+            <td>{{ w.note or '' }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endblock %}

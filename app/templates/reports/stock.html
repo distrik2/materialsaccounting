@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block content %}
+  <h1>Отчет: остатки по складу</h1>
+  <div class="card">
+    <table class="table">
+      <thead><tr><th>Материал</th><th>Ед.</th><th>Остаток</th></tr></thead>
+      <tbody>
+        {% for m in materials %}
+          <tr><td>{{ m.name }}</td><td>{{ m.unit }}</td><td>{{ '%.3f'|format(m.current_stock) }}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card" style="margin-top: 14px;">
+    <div class="row">
+      <a class="btn btn--ghost" href="{{ url_for('reports.supplies_report') }}">История поставок</a>
+      <a class="btn btn--ghost" href="{{ url_for('reports.writeoffs_report') }}">Списания</a>
+      <a class="btn btn--ghost" href="{{ url_for('reports.object_consumption') }}">Расход по объектам</a>
+    </div>
+  </div>
+{% endblock %}

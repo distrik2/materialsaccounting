@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% block content %}
+  <h1>Изменить материал</h1>
+  <div class="card">
+    <form method="post">
+      <label class="field">
+        <span>Название</span>
+        <input name="name" value="{{ material.name }}" required>
+      </label>
+      <label class="field">
+        <span>Единица измерения</span>
+        <input name="unit" value="{{ material.unit }}" required>
+      </label>
+      <button class="btn" type="submit">Сохранить</button>
+      <a class="btn btn--ghost" href="{{ url_for('materials.list_materials') }}">Отмена</a>
+    </form>
+  </div>
+{% endblock %}

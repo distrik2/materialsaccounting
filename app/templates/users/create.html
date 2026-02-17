@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block content %}
+  <h1>Создать пользователя</h1>
+  <div class="card">
+    <form method="post">
+      <label class="field">
+        <span>Логин</span>
+        <input name="username" required>
+      </label>
+      <label class="field">
+        <span>Пароль</span>
+        <input name="password" type="password" required>
+      </label>
+      <label class="field">
+        <span>Роль</span>
+        <select name="role" required>
+          <option value="">-- выберите --</option>
+          <option value="admin">Администратор</option>
+          <option value="storekeeper">Кладовщик</option>
+          <option value="manager">Руководитель</option>
+        </select>
+      </label>
+      <button class="btn" type="submit">Создать</button>
+      <a class="btn btn--ghost" href="{{ url_for('users.list_users') }}">Отмена</a>
+    </form>
+  </div>
+{% endblock %}

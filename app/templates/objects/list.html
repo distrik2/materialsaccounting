@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% block content %}
+  <div class="row">
+    <h1>Объекты строительства</h1>
+    {% if current_user.role in ['admin','storekeeper'] %}
+      <a class="btn" href="{{ url_for('objects.create_object') }}">Добавить</a>
+    {% endif %}
+  </div>
+
+  <div class="card">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Название</th>
+          <th>Адрес</th>
+          <th>Статус</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for o in objects %}
+          <tr>
+            <td>{{ o.name }}</td>
+            <td>{{ o.address }}</td>
+            <td>{{ o.status }}</td>
+            <td class="actions">
+              {% if current_user.role in ['admin','storekeeper'] %}
+                <a class="link" href="{{ url_for('objects.edit_object', object_id=o.id) }}">Изменить</a>
+              {% endif %}
+              {% if current_user.role == 'admin' %}
+                <form method="post" action="{{ url_for('objects.delete_object', object_id=o.id) }}" onsubmit="return confirm('Удалить объект?')">
+                  <button class="link danger" type="submit">Удалить</button>
+                </form>
+              {% endif %}
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endblock %}

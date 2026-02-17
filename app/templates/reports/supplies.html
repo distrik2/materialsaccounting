@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% block content %}
+  <h1>Отчет: история поставок</h1>
+  <div class="card">
+    <table class="table">
+      <thead><tr><th>Дата</th><th>Материал</th><th>Кол-во</th><th>Ед.</th><th>Примечание</th></tr></thead>
+      <tbody>
+        {% for s in supplies %}
+          <tr>
+            <td>{{ s.supply_date.isoformat() }}</td>
+            <td>{{ s.material.name }}</td>
+            <td>{{ '%.3f'|format(s.quantity) }}</td>
+            <td>{{ s.material.unit }}</td>
+            <td>{{ s.note or '' }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endblock %}

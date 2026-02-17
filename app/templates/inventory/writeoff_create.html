@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% block content %}
+  <h1>Списание на объект</h1>
+  <div class="card">
+    <form method="post">
+      <label class="field">
+        <span>Материал</span>
+        <select name="material_id" required>
+          <option value="">-- выберите --</option>
+          {% for m in materials %}
+            <option value="{{ m.id }}">{{ m.name }} (остаток: {{ '%.3f'|format(m.current_stock) }} {{ m.unit }})</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label class="field">
+        <span>Объект</span>
+        <select name="object_id" required>
+          <option value="">-- выберите --</option>
+          {% for o in objects %}
+            <option value="{{ o.id }}">{{ o.name }} ({{ o.status }})</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label class="field">
+        <span>Количество</span>
+        <input name="quantity" placeholder="например 10 или 1.5" required>
+      </label>
+      <label class="field">
+        <span>Дата списания</span>
+        <input type="date" name="writeoff_date" required>
+      </label>
+      <label class="field">
+        <span>Примечание</span>
+        <input name="note">
+      </label>
+      <button class="btn" type="submit">Списать</button>
+      <a class="btn btn--ghost" href="{{ url_for('inventory.list_writeoffs') }}">Отмена</a>
+    </form>
+  </div>
+{% endblock %}

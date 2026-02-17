@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block content %}
+  <h1>Изменить объект</h1>
+  <div class="card">
+    <form method="post">
+      <label class="field">
+        <span>Название</span>
+        <input name="name" value="{{ obj.name }}" required>
+      </label>
+      <label class="field">
+        <span>Адрес</span>
+        <input name="address" value="{{ obj.address }}" required>
+      </label>
+      <label class="field">
+        <span>Статус</span>
+        <input name="status" value="{{ obj.status }}" required>
+      </label>
+      <button class="btn" type="submit">Сохранить</button>
+      <a class="btn btn--ghost" href="{{ url_for('objects.list_objects') }}">Отмена</a>
+    </form>
+  </div>
+{% endblock %}

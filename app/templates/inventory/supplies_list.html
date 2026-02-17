@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block content %}
+  <div class="row">
+    <h1>Поставки</h1>
+    {% if current_user.role in ['admin','storekeeper'] %}
+      <a class="btn" href="{{ url_for('inventory.create_supply') }}">Добавить поставку</a>
+    {% endif %}
+  </div>
+
+  <div class="card">
+    <table class="table">
+      <thead>
+        <tr><th>Дата</th><th>Материал</th><th>Кол-во</th><th>Ед.</th><th>Примечание</th></tr>
+      </thead>
+      <tbody>
+        {% for s in supplies %}
+          <tr>
+            <td>{{ s.supply_date.isoformat() }}</td>
+            <td>{{ s.material.name }}</td>
+            <td>{{ '%.3f'|format(s.quantity) }}</td>
+            <td>{{ s.material.unit }}</td>
+            <td>{{ s.note or '' }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endblock %}

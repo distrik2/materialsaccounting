@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block content %}
+  <h1>Панель</h1>
+
+  <div class="grid">
+    <div class="card"><div class="kpi__label">Материалов</div><div class="kpi__value">{{ materials_count }}</div></div>
+    <div class="card"><div class="kpi__label">Объектов</div><div class="kpi__value">{{ objects_count }}</div></div>
+    <div class="card"><div class="kpi__label">Поставок</div><div class="kpi__value">{{ supplies_count }}</div></div>
+    <div class="card"><div class="kpi__label">Списаний</div><div class="kpi__value">{{ writeoffs_count }}</div></div>
+  </div>
+
+  <h2 style="margin-top: 18px;">Минимальные остатки</h2>
+  <div class="card">
+    <table class="table">
+      <thead>
+        <tr><th>Материал</th><th>Ед.</th><th>Остаток</th></tr>
+      </thead>
+      <tbody>
+        {% for m in low_stock %}
+          <tr><td>{{ m.name }}</td><td>{{ m.unit }}</td><td>{{ '%.3f'|format(m.current_stock) }}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endblock %}

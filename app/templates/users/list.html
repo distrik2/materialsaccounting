@@ -6,28 +6,53 @@
   </div>
 
   <div class="card">
-    <table class="table">
-      <thead>
-        <tr><th>Логин</th><th>Роль</th><th>Создан</th><th></th></tr>
-      </thead>
-      <tbody>
-        {% for u in users %}
-          <tr>
-            <td>{{ u.username }}</td>
-            <td>{{ u.role }}</td>
-            <td>{{ u.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
-            <td class="actions">
-              <form method="post" action="{{ url_for('users.reset_password', user_id=u.id) }}">
-                <input name="new_password" placeholder="новый пароль" style="max-width: 160px;">
-                <button class="link" type="submit">Сбросить</button>
-              </form>
-              <form method="post" action="{{ url_for('users.delete_user', user_id=u.id) }}" onsubmit="return confirm('Удалить пользователя?')">
-                <button class="link danger" type="submit">Удалить</button>
-              </form>
-            </td>
-          </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+    <div class="desktop-only">
+      <table class="table">
+        <thead>
+          <tr><th>Логин</th><th>Роль</th><th>Создан</th><th></th></tr>
+        </thead>
+        <tbody>
+          {% for u in users %}
+            <tr>
+              <td>{{ u.username }}</td>
+              <td>{{ u.role }}</td>
+              <td>{{ u.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+              <td class="actions">
+                <form method="post" action="{{ url_for('users.reset_password', user_id=u.id) }}">
+                  <input name="new_password" placeholder="новый пароль" style="max-width: 160px;">
+                  <button class="link" type="submit">Сбросить</button>
+                </form>
+                <form method="post" action="{{ url_for('users.delete_user', user_id=u.id) }}" onsubmit="return confirm('Удалить пользователя?')">
+                  <button class="link danger" type="submit">Удалить</button>
+                </form>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="mobile-only">
+      {% for u in users %}
+        <div class="mcard">
+          <div class="mcard__title">{{ u.username }}</div>
+          <div class="mkv">
+            <div class="mkv__k">Роль</div>
+            <div class="mkv__v">{{ u.role }}</div>
+            <div class="mkv__k">Создан</div>
+            <div class="mkv__v">{{ u.created_at.strftime('%Y-%m-%d %H:%M') }}</div>
+          </div>
+          <div class="mcard__actions" style="align-items:stretch;">
+            <form method="post" action="{{ url_for('users.reset_password', user_id=u.id) }}" style="display:flex; gap:10px; width:100%; flex-wrap:wrap;">
+              <input name="new_password" placeholder="новый пароль" style="flex:1; min-width: 160px;">
+              <button class="btn btn--ghost" type="submit">Сбросить</button>
+            </form>
+            <form method="post" action="{{ url_for('users.delete_user', user_id=u.id) }}" onsubmit="return confirm('Удалить пользователя?')">
+              <button class="btn btn--ghost" type="submit">Удалить</button>
+            </form>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
   </div>
 {% endblock %}

@@ -1,6 +1,7 @@
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import login_required
 
+from ..audit.service import log_action
 from ..extensions import db
 from ..models import User
 from ..security import role_required
@@ -37,6 +38,7 @@ def create_user():
         user = User(username=username, role=role)
         user.set_password(password)
         db.session.add(user)
+        log_action("create_user", "User", None, f"username={username}; role={role}")
         db.session.commit()
         flash("Пользователь создан", "success")
         return redirect(url_for("users.list_users"))
@@ -56,6 +58,7 @@ def reset_password(user_id: int):
         return redirect(url_for("users.list_users"))
 
     user.set_password(new_password)
+    log_action("reset_password", "User", user.id, f"username={user.username}")
     db.session.commit()
     flash("Пароль обновлен", "success")
     return redirect(url_for("users.list_users"))
@@ -71,6 +74,7 @@ def delete_user(user_id: int):
         return redirect(url_for("users.list_users"))
 
     db.session.delete(user)
+    log_action("delete_user", "User", user.id, f"username={user.username}")
     db.session.commit()
     flash("Пользователь удален", "success")
     return redirect(url_for("users.list_users"))

@@ -1,0 +1,8 @@
+.venv/
+__pycache__/
+instance/
+node_modules/
+.DS_Store
+
+# Tailwind build output is committed by default; uncomment if you prefer build artifacts ignored
+# app/static/tailwind.css

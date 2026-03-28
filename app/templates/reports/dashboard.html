@@ -1,6 +1,28 @@
 {% extends 'base.html' %}
+{% block page_title %}Дашборд{% endblock %}
+{% block extra_head %}
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+{% endblock %}
 {% block content %}
-  <h1>Панель</h1>
+  <div class="flex flex-col gap-4">
+    <div class="flex items-start justify-between gap-4 flex-wrap">
+      <div>
+        <h1 class="text-2xl font-semibold">Дашборд</h1>
+        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Поставки и списания, топы по расходу</p>
+      </div>
+
+      <form id="range-form" class="flex items-end gap-3 flex-wrap" method="get">
+        <div>
+          <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1" for="date_from">С</label>
+          <input id="date_from" name="date_from" type="date" value="{{ request.args.get('date_from') or '' }}" class="px-3 py-2 rounded-md border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm" />
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1" for="date_to">По</label>
+          <input id="date_to" name="date_to" type="date" value="{{ request.args.get('date_to') or '' }}" class="px-3 py-2 rounded-md border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm" />
+        </div>
+        <button type="submit" class="px-4 py-2 rounded-md bg-blue-600 text-white text-sm font-medium hover:bg-blue-700">Показать</button>
+      </form>
+    </div>
 
   <div class="grid">
     <div class="card"><div class="kpi__label">Материалов</div><div class="kpi__value">{{ materials_count }}</div></div>
@@ -9,17 +31,235 @@
     <div class="card"><div class="kpi__label">Списаний</div><div class="kpi__value">{{ writeoffs_count }}</div></div>
   </div>
 
-  <h2 style="margin-top: 18px;">Минимальные остатки</h2>
-  <div class="card">
-    <table class="table">
-      <thead>
-        <tr><th>Материал</th><th>Ед.</th><th>Остаток</th></tr>
-      </thead>
-      <tbody>
-        {% for m in low_stock %}
-          <tr><td>{{ m.name }}</td><td>{{ m.unit }}</td><td>{{ '%.3f'|format(m.current_stock) }}</td></tr>
-        {% endfor %}
-      </tbody>
-    </table>
+  <div class="grid gap-4 dashboard-grid-1">
+    <div class="card">
+      <div class="flex items-center justify-between gap-2">
+        <h2 class="text-base font-semibold">Поставки / списания по дням</h2>
+        <div id="range-caption" class="text-xs text-gray-500 dark:text-gray-400"></div>
+      </div>
+      <div class="mt-3 dashboard-chart-h-320">
+        <canvas id="chart-by-day"></canvas>
+      </div>
+    </div>
+
+    <div class="grid gap-4 dashboard-grid-1">
+      <div class="card">
+        <h2 class="text-base font-semibold">Топ-5 материалов по расходу</h2>
+        <div class="mt-3 dashboard-chart-h-280">
+          <canvas id="chart-top-materials"></canvas>
+        </div>
+      </div>
+      <div class="card">
+        <h2 class="text-base font-semibold">Топ-5 объектов по расходу</h2>
+        <div class="mt-3 dashboard-chart-h-280">
+          <canvas id="chart-top-objects"></canvas>
+        </div>
+      </div>
+    </div>
   </div>
+
+  <h2 class="dashboard-section-title">Минимальные остатки</h2>
+  <div class="card">
+    <div class="desktop-only">
+      <table class="table">
+        <thead>
+          <tr><th>Материал</th><th>Ед.</th><th>Остаток</th></tr>
+        </thead>
+        <tbody>
+          {% for m in low_stock %}
+            <tr><td>{{ m.name }}</td><td>{{ m.unit }}</td><td>{{ '%.3f'|format(m.current_stock) }}</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="mobile-only">
+      {% for m in low_stock %}
+        <div class="mcard">
+          <div class="mcard__title">{{ m.name }}</div>
+          <div class="mkv">
+            <div class="mkv__k">Ед.</div>
+            <div class="mkv__v">{{ m.unit }}</div>
+            <div class="mkv__k">Остаток</div>
+            <div class="mkv__v">{{ '%.3f'|format(m.current_stock) }}</div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+  </div>
+{% endblock %}
+
+{% block scripts %}
+  <script>
+    (function () {
+      function qs(sel) { return document.querySelector(sel); }
+
+      const dateFromEl = qs('#date_from');
+      const dateToEl = qs('#date_to');
+      const rangeCaptionEl = qs('#range-caption');
+
+      let chartByDay = null;
+      let chartTopMaterials = null;
+      let chartTopObjects = null;
+
+      function getDefaultRange() {
+        const today = new Date();
+        const to = today.toISOString().slice(0, 10);
+        const fromDate = new Date(today.getTime() - 29 * 24 * 60 * 60 * 1000);
+        const from = fromDate.toISOString().slice(0, 10);
+        return { from, to };
+      }
+
+      function ensureDates() {
+        const d = getDefaultRange();
+        if (dateFromEl && !dateFromEl.value) dateFromEl.value = d.from;
+        if (dateToEl && !dateToEl.value) dateToEl.value = d.to;
+      }
+
+      function destroyCharts() {
+        try { if (chartByDay) chartByDay.destroy(); } catch (e) {}
+        try { if (chartTopMaterials) chartTopMaterials.destroy(); } catch (e) {}
+        try { if (chartTopObjects) chartTopObjects.destroy(); } catch (e) {}
+        chartByDay = null;
+        chartTopMaterials = null;
+        chartTopObjects = null;
+      }
+
+      function chartColors() {
+        const isDark = document.documentElement.classList.contains('dark');
+        return {
+          grid: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)',
+          text: isDark ? 'rgba(255,255,255,0.85)' : 'rgba(0,0,0,0.85)',
+        };
+      }
+
+      async function loadData() {
+        ensureDates();
+        const params = new URLSearchParams();
+        if (dateFromEl && dateFromEl.value) params.set('date_from', dateFromEl.value);
+        if (dateToEl && dateToEl.value) params.set('date_to', dateToEl.value);
+
+        const url = '{{ url_for('reports.dashboard_data') }}' + '?' + params.toString();
+        const resp = await fetch(url, { headers: { 'Accept': 'application/json' } });
+        if (!resp.ok) throw new Error('Failed to load dashboard data');
+        return await resp.json();
+      }
+
+      function render(data) {
+        destroyCharts();
+        const c = chartColors();
+
+        if (rangeCaptionEl && data && data.range) {
+          rangeCaptionEl.textContent = data.range.date_from + ' — ' + data.range.date_to;
+        }
+
+        const byDayEl = qs('#chart-by-day');
+        const topMatEl = qs('#chart-top-materials');
+        const topObjEl = qs('#chart-top-objects');
+
+        if (byDayEl) {
+          chartByDay = new Chart(byDayEl, {
+            type: 'line',
+            data: {
+              labels: (data.by_day && data.by_day.labels) || [],
+              datasets: [
+                {
+                  label: 'Поставки',
+                  data: (data.by_day && data.by_day.supplies) || [],
+                  borderColor: 'rgba(16, 185, 129, 1)',
+                  backgroundColor: 'rgba(16, 185, 129, 0.15)',
+                  tension: 0.25,
+                  fill: true,
+                },
+                {
+                  label: 'Списания',
+                  data: (data.by_day && data.by_day.writeoffs) || [],
+                  borderColor: 'rgba(239, 68, 68, 1)',
+                  backgroundColor: 'rgba(239, 68, 68, 0.12)',
+                  tension: 0.25,
+                  fill: true,
+                },
+              ],
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              interaction: { mode: 'index', intersect: false },
+              plugins: {
+                legend: { labels: { color: c.text } },
+                tooltip: { enabled: true },
+              },
+              scales: {
+                x: { ticks: { color: c.text }, grid: { color: c.grid } },
+                y: { ticks: { color: c.text }, grid: { color: c.grid } },
+              },
+            }
+          });
+        }
+
+        if (topMatEl) {
+          const unit = (data.top_materials && data.top_materials.unit) ? (' (' + data.top_materials.unit + ')') : '';
+          chartTopMaterials = new Chart(topMatEl, {
+            type: 'bar',
+            data: {
+              labels: (data.top_materials && data.top_materials.labels) || [],
+              datasets: [{
+                label: 'Расход' + unit,
+                data: (data.top_materials && data.top_materials.values) || [],
+                backgroundColor: 'rgba(59, 130, 246, 0.65)',
+                borderColor: 'rgba(59, 130, 246, 1)',
+                borderWidth: 1,
+              }]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: { legend: { labels: { color: c.text } } },
+              scales: {
+                x: { ticks: { color: c.text }, grid: { color: c.grid } },
+                y: { ticks: { color: c.text }, grid: { color: c.grid } },
+              },
+            }
+          });
+        }
+
+        if (topObjEl) {
+          chartTopObjects = new Chart(topObjEl, {
+            type: 'bar',
+            data: {
+              labels: (data.top_objects && data.top_objects.labels) || [],
+              datasets: [{
+                label: 'Расход',
+                data: (data.top_objects && data.top_objects.values) || [],
+                backgroundColor: 'rgba(245, 158, 11, 0.65)',
+                borderColor: 'rgba(245, 158, 11, 1)',
+                borderWidth: 1,
+              }]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: { legend: { labels: { color: c.text } } },
+              scales: {
+                x: { ticks: { color: c.text }, grid: { color: c.grid } },
+                y: { ticks: { color: c.text }, grid: { color: c.grid } },
+              },
+            }
+          });
+        }
+      }
+
+      async function init() {
+        try {
+          const data = await loadData();
+          render(data);
+        } catch (e) {
+          console.error(e);
+        }
+      }
+
+      document.addEventListener('DOMContentLoaded', init);
+    })();
+  </script>
 {% endblock %}

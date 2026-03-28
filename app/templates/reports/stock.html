@@ -1,15 +1,68 @@
 {% extends 'base.html' %}
 {% block content %}
-  <h1>Отчет: остатки по складу</h1>
+  <div class="row">
+    <h1>Отчет: остатки по складу</h1>
+    <a class="btn btn--ghost" href="{{ url_for('reports.stock_report', export='csv', q=q) }}">Скачать CSV</a>
+  </div>
+
   <div class="card">
-    <table class="table">
-      <thead><tr><th>Материал</th><th>Ед.</th><th>Остаток</th></tr></thead>
-      <tbody>
-        {% for m in materials %}
-          <tr><td>{{ m.name }}</td><td>{{ m.unit }}</td><td>{{ '%.3f'|format(m.current_stock) }}</td></tr>
-        {% endfor %}
-      </tbody>
-    </table>
+    <form method="get" class="filters">
+      <label class="field">
+        <span>Поиск</span>
+        <input name="q" value="{{ q }}" placeholder="название материала">
+      </label>
+      <div class="field" style="align-self:end;">
+        <span>&nbsp;</span>
+        <button class="btn" type="submit">Применить</button>
+      </div>
+      <div class="field" style="align-self:end;">
+        <span>&nbsp;</span>
+        <a class="btn btn--ghost" href="{{ url_for('reports.stock_report') }}">Сбросить</a>
+      </div>
+    </form>
+  </div>
+
+  <div class="card">
+    <div class="desktop-only">
+      <table class="table">
+        <thead><tr><th>Штрихкод</th><th>Материал</th><th>Ед.</th><th>Остаток</th></tr></thead>
+        <tbody>
+          {% for m in materials %}
+            <tr><td>{{ m.barcode }}</td><td>{{ m.name }}</td><td>{{ m.unit }}</td><td>{{ '%.3f'|format(m.current_stock) }}</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="mobile-only">
+      {% for m in materials %}
+        <div class="mcard">
+          <div class="mcard__title">{{ m.name }}</div>
+          <div class="mkv">
+            <div class="mkv__k">Штрихкод</div>
+            <div class="mkv__v">{{ m.barcode }}</div>
+            <div class="mkv__k">Ед.</div>
+            <div class="mkv__v">{{ m.unit }}</div>
+            <div class="mkv__k">Остаток</div>
+            <div class="mkv__v">{{ '%.3f'|format(m.current_stock) }}</div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+
+    {% if page %}
+      <div class="pager">
+        <div class="pager__info">Страница {{ page.page }} из {{ page.pages }} (всего {{ page.total }})</div>
+        <div class="actions">
+          {% if page.has_prev %}
+            <a class="btn btn--ghost" href="{{ url_for('reports.stock_report', page=page.prev_page, q=q) }}">Назад</a>
+          {% endif %}
+          {% if page.has_next %}
+            <a class="btn btn--ghost" href="{{ url_for('reports.stock_report', page=page.next_page, q=q) }}">Вперед</a>
+          {% endif %}
+        </div>
+      </div>
+    {% endif %}
   </div>
 
   <div class="card" style="margin-top: 14px;">

@@ -3,6 +3,11 @@
   <h1>Добавить материал</h1>
   <div class="card">
     <form method="post">
+      <input type="hidden" name="next" value="{{ next or '' }}">
+      <label class="field">
+        <span>Штрихкод (ID)</span>
+        <input name="barcode" placeholder="оставьте пустым для автогенерации">
+      </label>
       <label class="field">
         <span>Название</span>
         <input name="name" required>
@@ -12,7 +17,7 @@
         <input name="unit" placeholder="шт, кг, м3..." required>
       </label>
       <button class="btn" type="submit">Сохранить</button>
-      <a class="btn btn--ghost" href="{{ url_for('materials.list_materials') }}">Отмена</a>
+      <a class="btn btn--ghost" href="{{ next or url_for('materials.list_materials') }}">Отмена</a>
     </form>
   </div>
 {% endblock %}

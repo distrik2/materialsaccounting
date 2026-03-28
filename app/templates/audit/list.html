@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+{% block content %}
+  <div class="row">
+    <h1>Журнал операций</h1>
+  </div>
+
+  <div class="card">
+    <form method="get" class="filters">
+      <label class="field">
+        <span>Поиск</span>
+        <input name="q" value="{{ q }}" placeholder="действие, сущность, детали">
+      </label>
+      <label class="field">
+        <span>Пользователь</span>
+        <select name="user_id">
+          <option value="">-- любой --</option>
+          {% for u in users %}
+            <option value="{{ u.id }}" {% if user_id|int == u.id %}selected{% endif %}>{{ u.username }} ({{ u.role }})</option>
+          {% endfor %}
+        </select>
+      </label>
+      <div class="field" style="align-self:end;">
+        <span>&nbsp;</span>
+        <button class="btn" type="submit">Применить</button>
+      </div>
+      <div class="field" style="align-self:end;">
+        <span>&nbsp;</span>
+        <a class="btn btn--ghost" href="{{ url_for('audit.list_audit') }}">Сбросить</a>
+      </div>
+    </form>
+  </div>
+
+  <div class="card" style="margin-top: 14px;">
+    <div class="desktop-only">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Время</th>
+            <th>Пользователь</th>
+            <th>Действие</th>
+            <th>Сущность</th>
+            <th>Детали</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for l in logs %}
+            <tr>
+              <td>{{ l.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+              <td>{{ l.user.username if l.user else '' }}</td>
+              <td>{{ l.action }}</td>
+              <td>{{ l.entity_type }}{% if l.entity_id %} #{{ l.entity_id }}{% endif %}</td>
+              <td>{{ l.details or '' }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="mobile-only">
+      {% for l in logs %}
+        <div class="mcard">
+          <div class="mcard__title">{{ l.action }}</div>
+          <div class="mkv">
+            <div class="mkv__k">Время</div>
+            <div class="mkv__v">{{ l.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</div>
+            <div class="mkv__k">Пользователь</div>
+            <div class="mkv__v">{{ l.user.username if l.user else '' }}</div>
+            <div class="mkv__k">Сущность</div>
+            <div class="mkv__v">{{ l.entity_type }}{% if l.entity_id %} #{{ l.entity_id }}{% endif %}</div>
+            <div class="mkv__k">Детали</div>
+            <div class="mkv__v">{{ l.details or '' }}</div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+
+    <div class="pager">
+      <div class="pager__info">Страница {{ page.page }} из {{ page.pages }} (всего {{ page.total }})</div>
+      <div class="actions">
+        {% if page.has_prev %}
+          <a class="btn btn--ghost" href="{{ url_for('audit.list_audit', page=page.prev_page, q=q, user_id=user_id) }}">Назад</a>
+        {% endif %}
+        {% if page.has_next %}
+          <a class="btn btn--ghost" href="{{ url_for('audit.list_audit', page=page.next_page, q=q, user_id=user_id) }}">Вперед</a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+{% endblock %}

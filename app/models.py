@@ -38,6 +38,7 @@ class Material(db.Model):
     __tablename__ = "materials"
 
     id = db.Column(db.Integer, primary_key=True)
+    barcode = db.Column(db.String(64), unique=True, nullable=False)
     name = db.Column(db.String(150), unique=True, nullable=False)
     unit = db.Column(db.String(20), nullable=False)
     current_stock = db.Column(db.Numeric(12, 3), nullable=False, default=Decimal("0"))
@@ -72,3 +73,17 @@ class WriteOff(db.Model):
 
     material = db.relationship("Material", backref=db.backref("write_offs", lazy=True))
     object = db.relationship("ConstructionObject", backref=db.backref("write_offs", lazy=True))
+
+
+class AuditLog(db.Model):
+    __tablename__ = "audit_log"
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=True)
+    action = db.Column(db.String(80), nullable=False)
+    entity_type = db.Column(db.String(80), nullable=False)
+    entity_id = db.Column(db.Integer, nullable=True)
+    details = db.Column(db.String(500), nullable=True)
+    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+
+    user = db.relationship("User", backref=db.backref("audit_logs", lazy=True))

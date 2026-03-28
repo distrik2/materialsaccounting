@@ -4,6 +4,10 @@
   <div class="card">
     <form method="post">
       <label class="field">
+        <span>Штрихкод (ID)</span>
+        <input name="barcode" value="{{ material.barcode }}" required>
+      </label>
+      <label class="field">
         <span>Название</span>
         <input name="name" value="{{ material.name }}" required>
       </label>

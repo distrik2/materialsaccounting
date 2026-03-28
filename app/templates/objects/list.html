@@ -8,34 +8,60 @@
   </div>
 
   <div class="card">
-    <table class="table">
-      <thead>
-        <tr>
-          <th>Название</th>
-          <th>Адрес</th>
-          <th>Статус</th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for o in objects %}
+    <div class="desktop-only">
+      <table class="table">
+        <thead>
           <tr>
-            <td>{{ o.name }}</td>
-            <td>{{ o.address }}</td>
-            <td>{{ o.status }}</td>
-            <td class="actions">
-              {% if current_user.role in ['admin','storekeeper'] %}
-                <a class="link" href="{{ url_for('objects.edit_object', object_id=o.id) }}">Изменить</a>
-              {% endif %}
-              {% if current_user.role == 'admin' %}
-                <form method="post" action="{{ url_for('objects.delete_object', object_id=o.id) }}" onsubmit="return confirm('Удалить объект?')">
-                  <button class="link danger" type="submit">Удалить</button>
-                </form>
-              {% endif %}
-            </td>
+            <th>Название</th>
+            <th>Адрес</th>
+            <th>Статус</th>
+            <th></th>
           </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          {% for o in objects %}
+            <tr>
+              <td>{{ o.name }}</td>
+              <td>{{ o.address }}</td>
+              <td>{{ o.status }}</td>
+              <td class="actions">
+                {% if current_user.role in ['admin','storekeeper'] %}
+                  <a class="link" href="{{ url_for('objects.edit_object', object_id=o.id) }}">Изменить</a>
+                {% endif %}
+                {% if current_user.role == 'admin' %}
+                  <form method="post" action="{{ url_for('objects.delete_object', object_id=o.id) }}" onsubmit="return confirm('Удалить объект?')">
+                    <button class="link danger" type="submit">Удалить</button>
+                  </form>
+                {% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="mobile-only">
+      {% for o in objects %}
+        <div class="mcard">
+          <div class="mcard__title">{{ o.name }}</div>
+          <div class="mkv">
+            <div class="mkv__k">Адрес</div>
+            <div class="mkv__v">{{ o.address }}</div>
+            <div class="mkv__k">Статус</div>
+            <div class="mkv__v">{{ o.status }}</div>
+          </div>
+          <div class="mcard__actions">
+            {% if current_user.role in ['admin','storekeeper'] %}
+              <a class="btn btn--ghost" href="{{ url_for('objects.edit_object', object_id=o.id) }}">Изменить</a>
+            {% endif %}
+            {% if current_user.role == 'admin' %}
+              <form method="post" action="{{ url_for('objects.delete_object', object_id=o.id) }}" onsubmit="return confirm('Удалить объект?')">
+                <button class="btn btn--ghost" type="submit">Удалить</button>
+              </form>
+            {% endif %}
+          </div>
+        </div>
+      {% endfor %}
+    </div>
   </div>
 {% endblock %}

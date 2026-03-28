@@ -15,6 +15,7 @@ def create_app():
 
     from .auth.routes import bp as auth_bp
     from .users.routes import bp as users_bp
+    from .audit.routes import bp as audit_bp
     from .materials.routes import bp as materials_bp
     from .objects.routes import bp as objects_bp
     from .inventory.routes import bp as inventory_bp
@@ -22,6 +23,7 @@ def create_app():
 
     app.register_blueprint(auth_bp)
     app.register_blueprint(users_bp)
+    app.register_blueprint(audit_bp)
     app.register_blueprint(materials_bp)
     app.register_blueprint(objects_bp)
     app.register_blueprint(inventory_bp)

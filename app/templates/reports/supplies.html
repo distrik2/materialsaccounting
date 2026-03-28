@@ -1,20 +1,93 @@
 {% extends 'base.html' %}
 {% block content %}
-  <h1>Отчет: история поставок</h1>
+  <div class="row">
+    <h1>Отчет: история поставок</h1>
+    <a class="btn btn--ghost" href="{{ url_for('reports.supplies_report', export='csv', q=q, material_id=material_id, date_from=date_from, date_to=date_to) }}">Скачать CSV</a>
+  </div>
+
   <div class="card">
-    <table class="table">
-      <thead><tr><th>Дата</th><th>Материал</th><th>Кол-во</th><th>Ед.</th><th>Примечание</th></tr></thead>
-      <tbody>
-        {% for s in supplies %}
-          <tr>
-            <td>{{ s.supply_date.isoformat() }}</td>
-            <td>{{ s.material.name }}</td>
-            <td>{{ '%.3f'|format(s.quantity) }}</td>
-            <td>{{ s.material.unit }}</td>
-            <td>{{ s.note or '' }}</td>
-          </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+    <form method="get" class="filters">
+      <label class="field">
+        <span>Поиск</span>
+        <input name="q" value="{{ q }}" placeholder="материал или примечание">
+      </label>
+      <label class="field">
+        <span>Материал</span>
+        <select name="material_id">
+          <option value="">-- любой --</option>
+          {% for m in materials %}
+            <option value="{{ m.id }}" {% if material_id|int == m.id %}selected{% endif %}>{{ m.barcode }} — {{ m.name }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label class="field">
+        <span>Дата с</span>
+        <input type="date" name="date_from" value="{{ date_from }}">
+      </label>
+      <label class="field">
+        <span>Дата по</span>
+        <input type="date" name="date_to" value="{{ date_to }}">
+      </label>
+      <div class="field" style="align-self:end;">
+        <span>&nbsp;</span>
+        <button class="btn" type="submit">Применить</button>
+      </div>
+      <div class="field" style="align-self:end;">
+        <span>&nbsp;</span>
+        <a class="btn btn--ghost" href="{{ url_for('reports.supplies_report') }}">Сбросить</a>
+      </div>
+    </form>
+  </div>
+
+  <div class="card">
+    <div class="desktop-only">
+      <table class="table">
+        <thead><tr><th>Дата</th><th>Штрихкод</th><th>Материал</th><th>Кол-во</th><th>Ед.</th><th>Примечание</th></tr></thead>
+        <tbody>
+          {% for s in supplies %}
+            <tr>
+              <td>{{ s.supply_date.isoformat() }}</td>
+              <td>{{ s.material.barcode }}</td>
+              <td>{{ s.material.name }}</td>
+              <td>{{ '%.3f'|format(s.quantity) }}</td>
+              <td>{{ s.material.unit }}</td>
+              <td>{{ s.note or '' }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="mobile-only">
+      {% for s in supplies %}
+        <div class="mcard">
+          <div class="mcard__title">{{ s.material.name }}</div>
+          <div class="mkv">
+            <div class="mkv__k">Дата</div>
+            <div class="mkv__v">{{ s.supply_date.isoformat() }}</div>
+            <div class="mkv__k">Штрихкод</div>
+            <div class="mkv__v">{{ s.material.barcode }}</div>
+            <div class="mkv__k">Кол-во</div>
+            <div class="mkv__v">{{ '%.3f'|format(s.quantity) }} {{ s.material.unit }}</div>
+            <div class="mkv__k">Примечание</div>
+            <div class="mkv__v">{{ s.note or '' }}</div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+
+    {% if page %}
+      <div class="pager">
+        <div class="pager__info">Страница {{ page.page }} из {{ page.pages }} (всего {{ page.total }})</div>
+        <div class="actions">
+          {% if page.has_prev %}
+            <a class="btn btn--ghost" href="{{ url_for('reports.supplies_report', page=page.prev_page, q=q, material_id=material_id, date_from=date_from, date_to=date_to) }}">Назад</a>
+          {% endif %}
+          {% if page.has_next %}
+            <a class="btn btn--ghost" href="{{ url_for('reports.supplies_report', page=page.next_page, q=q, material_id=material_id, date_from=date_from, date_to=date_to) }}">Вперед</a>
+          {% endif %}
+        </div>
+      </div>
+    {% endif %}
   </div>
 {% endblock %}

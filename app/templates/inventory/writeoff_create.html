@@ -8,10 +8,13 @@
         <select name="material_id" required>
           <option value="">-- выберите --</option>
           {% for m in materials %}
-            <option value="{{ m.id }}">{{ m.name }} (остаток: {{ '%.3f'|format(m.current_stock) }} {{ m.unit }})</option>
+            <option value="{{ m.id }}">{{ m.barcode }} — {{ m.name }} (остаток: {{ '%.3f'|format(m.current_stock) }} {{ m.unit }})</option>
           {% endfor %}
         </select>
       </label>
+      <div class="row" style="margin-top: -6px;">
+        <a class="btn btn--ghost" href="{{ url_for('materials.create_material', next=request.path) }}">+ Добавить материал</a>
+      </div>
       <label class="field">
         <span>Объект</span>
         <select name="object_id" required>

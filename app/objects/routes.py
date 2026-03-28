@@ -1,6 +1,7 @@
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import login_required
 
+from ..audit.service import log_action
 from ..extensions import db
 from ..models import ConstructionObject
 from ..security import role_required
@@ -30,6 +31,7 @@ def create_object():
 
         obj = ConstructionObject(name=name, address=address, status=status or "active")
         db.session.add(obj)
+        log_action("create_object", "ConstructionObject", None, f"name={name}; address={address}; status={status}")
         db.session.commit()
         flash("Объект добавлен", "success")
         return redirect(url_for("objects.list_objects"))
@@ -55,6 +57,7 @@ def edit_object(object_id: int):
         obj.name = name
         obj.address = address
         obj.status = status or "active"
+        log_action("edit_object", "ConstructionObject", obj.id, f"name={name}; address={address}; status={status}")
         db.session.commit()
         flash("Объект обновлен", "success")
         return redirect(url_for("objects.list_objects"))
@@ -73,6 +76,7 @@ def delete_object(object_id: int):
         return redirect(url_for("objects.list_objects"))
 
     db.session.delete(obj)
+    log_action("delete_object", "ConstructionObject", obj.id, f"name={obj.name}")
     db.session.commit()
     flash("Объект удален", "success")
     return redirect(url_for("objects.list_objects"))

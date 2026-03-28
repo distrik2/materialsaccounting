@@ -8,34 +8,64 @@
   </div>
 
   <div class="card">
-    <table class="table">
-      <thead>
-        <tr>
-          <th>Название</th>
-          <th>Ед.</th>
-          <th>Остаток</th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for m in materials %}
+    <div class="desktop-only">
+      <table class="table">
+        <thead>
           <tr>
-            <td>{{ m.name }}</td>
-            <td>{{ m.unit }}</td>
-            <td>{{ '%.3f'|format(m.current_stock) }}</td>
-            <td class="actions">
-              {% if current_user.role in ['admin','storekeeper'] %}
-                <a class="link" href="{{ url_for('materials.edit_material', material_id=m.id) }}">Изменить</a>
-              {% endif %}
-              {% if current_user.role == 'admin' %}
-                <form method="post" action="{{ url_for('materials.delete_material', material_id=m.id) }}" onsubmit="return confirm('Удалить материал?')">
-                  <button class="link danger" type="submit">Удалить</button>
-                </form>
-              {% endif %}
-            </td>
+            <th>Штрихкод</th>
+            <th>Название</th>
+            <th>Ед.</th>
+            <th>Остаток</th>
+            <th></th>
           </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          {% for m in materials %}
+            <tr>
+              <td>{{ m.barcode }}</td>
+              <td>{{ m.name }}</td>
+              <td>{{ m.unit }}</td>
+              <td>{{ '%.3f'|format(m.current_stock) }}</td>
+              <td class="actions">
+                {% if current_user.role in ['admin','storekeeper'] %}
+                  <a class="link" href="{{ url_for('materials.edit_material', material_id=m.id) }}">Изменить</a>
+                {% endif %}
+                {% if current_user.role == 'admin' %}
+                  <form method="post" action="{{ url_for('materials.delete_material', material_id=m.id) }}" onsubmit="return confirm('Удалить материал?')">
+                    <button class="link danger" type="submit">Удалить</button>
+                  </form>
+                {% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="mobile-only">
+      {% for m in materials %}
+        <div class="mcard">
+          <div class="mcard__title">{{ m.name }}</div>
+          <div class="mkv">
+            <div class="mkv__k">Штрихкод</div>
+            <div class="mkv__v">{{ m.barcode }}</div>
+            <div class="mkv__k">Ед.</div>
+            <div class="mkv__v">{{ m.unit }}</div>
+            <div class="mkv__k">Остаток</div>
+            <div class="mkv__v">{{ '%.3f'|format(m.current_stock) }}</div>
+          </div>
+          <div class="mcard__actions">
+            {% if current_user.role in ['admin','storekeeper'] %}
+              <a class="btn btn--ghost" href="{{ url_for('materials.edit_material', material_id=m.id) }}">Изменить</a>
+            {% endif %}
+            {% if current_user.role == 'admin' %}
+              <form method="post" action="{{ url_for('materials.delete_material', material_id=m.id) }}" onsubmit="return confirm('Удалить материал?')">
+                <button class="btn btn--ghost" type="submit">Удалить</button>
+              </form>
+            {% endif %}
+          </div>
+        </div>
+      {% endfor %}
+    </div>
   </div>
 {% endblock %}
